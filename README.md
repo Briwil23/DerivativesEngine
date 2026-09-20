@@ -7,8 +7,9 @@ DerivativesEngine is a quantitative-finance Python project focused on the mathem
 The project is organized around a clear milestone structure:
 
 - M1: certified Black-Scholes-Merton pricing foundation
-- M2: implemented Greeks and sensitivity engine (certification candidate)
-- M3+: planned extensions such as implied volatility workflows and more advanced derivatives tooling
+- M2: complete and published Greeks and sensitivity engine
+- M3: implemented implied-volatility solving, root finding, and validation workflows
+- M4+: planned extensions such as more advanced derivatives tooling and further calibration research
 
 This repository is not a live trading system, a market-data platform, or a production hedging engine.
 
@@ -97,7 +98,7 @@ print(price)
 python -m pytest -q
 ```
 
-## M2 — IMPLEMENTED / CERTIFICATION CANDIDATE
+## M2 — COMPLETE
 
 The M2 layer adds analytical Greeks and independent finite-difference validation for the same European vanilla option model.
 
@@ -200,13 +201,78 @@ At exact boundary values, the BSM Greeks are not evaluated through singular form
 
 Under the current M2 policy, the public Greek API raises ValueError rather than manufacturing finite values. This is mathematically honest and preserves the distinction between the M1 pricing engine and the M2 derivative-domain policy.
 
-## M3 — PLANNED
+## M3 — COMPLETE
 
-Planned future work includes:
+The M3 layer adds an implied-volatility engine for European vanilla options under the existing Black-Scholes-Merton framework. The project does not use live market data or a market chain; it solves the inverse pricing problem deterministically from a supplied option contract and a market price.
 
-- implied volatility engine
-- calibration and root-finding workflows
-- additional derivatives machinery and validation tools
+### Implied-volatility definition
+
+Given an observed option price $P_{obs}$, the implied volatility is the volatility parameter $\sigma$ such that:
+
+$$
+\mathrm{BSM}(S, K, T, r, q, \sigma) = P_{obs}
+$$
+
+Equivalently, the root problem is:
+
+$$
+f(\sigma) = \mathrm{BSM}(\sigma) - P_{obs} = 0
+$$
+
+This is a model-implied quantity. It is not a forecast of future realized volatility.
+
+### Valid observed-price checks
+
+Before solving, the observed option value is checked against the BSM no-arbitrage interval. For $T > 0$:
+
+- Call lower bound: $\max(S e^{-qT} - K e^{-rT}, 0)$
+- Call upper bound: $S e^{-qT}$
+- Put lower bound: $\max(K e^{-rT} - S e^{-qT}, 0)$
+- Put upper bound: $K e^{-rT}$
+
+Prices outside this interval are rejected before numerical root finding. Exact lower-bound cases map naturally to $\sigma = 0$, while exact upper-bound prices are treated as a situation with no finite implied volatility because the upper bound is achieved only as $\sigma \to \infty$.
+
+### Expiration policy
+
+At $T = 0$, the option is purely intrinsic and does not depend on $\sigma$. The implied-volatility problem is therefore not identifiable, and the library raises a clear exception rather than fabricating a volatility.
+
+### Solvers
+
+The M3 package includes:
+
+- Brent/bracketed root finding using SciPy's bracketing logic
+- safeguarded Newton-Raphson update using the certified M2 Vega
+- auto mode that attempts the Newton step first and falls back to Brent when the Newton path becomes numerically unsafe
+
+The public API is intentionally simple and does not permit the existing option sigma to silently determine the inverse problem. The supplied option's volatility is used only as a starting point when explicitly requested, not as an ambiguous solution input.
+
+### Diagnostics
+
+Each solver result preserves useful diagnostics, including:
+
+- recovered volatility
+- convergence status
+- method name
+- iteration count
+- final price error
+- whether a fallback was used
+- solver message
+
+This makes the numerical result auditable and reproducible.
+
+### Current scope and limitations
+
+The M3 implementation remains within the mathematical research scope of the project:
+
+- European vanilla options only
+- Black-Scholes-Merton assumptions
+- no live market data or option-chain downloads
+- no volatility surface, smile interpolation, local volatility, or stochastic volatility
+- no dashboard or production trading layer
+
+## M4+ — PLANNED
+
+Planned future work includes more advanced derivatives tooling and additional numerical research beyond the current implied-volatility engine.
 
 ## Installation
 
@@ -264,14 +330,14 @@ The project does not claim live market risk analytics, dynamic hedging, predicti
 - option contract models and validation
 - M1 benchmark and regression coverage
 
-### M2 — IMPLEMENTED / CERTIFICATION CANDIDATE
+### M2 — COMPLETE
 
 - analytical Greeks
 - finite-difference validator
 - identity and parity checks
 - convergence and boundary analysis
 
-### M3 — PLANNED
+### M3 — COMPLETE
 
 - implied volatility engine
 - calibration workflows
@@ -285,4 +351,4 @@ The project does not claim live market risk analytics, dynamic hedging, predicti
 
 ## Project Status
 
-This project is currently in a disciplined M2 certification phase. The M1 pricing foundation is complete and certified. The M2 Greeks engine is implemented and independently validated against finite differences, but it remains a certification candidate rather than a published release milestone.
+This project is in a disciplined M3 publication phase. The M1 pricing foundation is complete and certified, the M2 Greeks engine is complete and published, and the M3 implied-volatility engine is complete and certified. The project remains intentionally focused on the Black-Scholes-Merton research scope and does not implement M4.
