@@ -9,7 +9,8 @@ The project is organized around a clear milestone structure:
 - M1: certified Black-Scholes-Merton pricing foundation
 - M2: complete and published Greeks and sensitivity engine
 - M3: implemented implied-volatility solving, root finding, and validation workflows
-- M4+: planned extensions such as more advanced derivatives tooling and further calibration research
+- M4: implemented CRR binomial pricing with European and American exercise logic
+- M5+: planned extensions such as more advanced derivatives tooling and further calibration research
 
 This repository is not a live trading system, a market-data platform, or a production hedging engine.
 
@@ -270,9 +271,35 @@ The M3 implementation remains within the mathematical research scope of the proj
 - no volatility surface, smile interpolation, local volatility, or stochastic volatility
 - no dashboard or production trading layer
 
-## M4+ — PLANNED
+## M4 — COMPLETE
 
-Planned future work includes more advanced derivatives tooling and additional numerical research beyond the current implied-volatility engine.
+The M4 layer adds a recombining Cox-Ross-Rubinstein binomial-tree engine for European and American options under continuous dividend yield q. It implements discrete-time risk-neutral valuation, backward induction, and explicit early-exercise decisions with auditable diagnostics, while preserving the certified M1-M3 foundation.
+
+### M4 capabilities
+
+- CRR binomial-tree pricing for European calls and puts
+- American call and put pricing with intrinsic-vs-continuation checks
+- continuous dividend yield q in the risk-neutral probability
+- explicit ExerciseStyle contracts for European vs American exercise
+- exercise-boundary summaries for early-exercise analysis
+- European-to-BSM convergence checks as steps increase
+- American-vs-European dominance and early-exercise premium reporting
+- sigma = 0 and T = 0 boundary policies consistent with the underlying model logic
+- independent fixed benchmarks and small-tree audit documentation
+
+### M4 limitations
+
+The M4 implementation remains focused on discrete-time vanilla option pricing and does not introduce:
+
+- Monte Carlo or variance reduction
+- stochastic volatility or local volatility models
+- market calibration pipelines
+- exotic option support
+- live market data or trading workflows
+
+## M5+ — PLANNED
+
+Planned future work includes more advanced derivatives tooling and additional numerical research beyond the current CRR binomial engine.
 
 ## Installation
 
@@ -343,7 +370,14 @@ The project does not claim live market risk analytics, dynamic hedging, predicti
 - calibration workflows
 - broader derivatives tooling
 
-### M4+ — PLANNED
+### M4 — COMPLETE
+
+- CRR binomial pricing engine
+- American and European exercise logic
+- discrete-time valuation and exercise diagnostics
+- M4 convergence and parity validation
+
+### M5+ — PLANNED
 
 - more advanced numerical methods
 - model extensions and validation workflows
@@ -351,4 +385,4 @@ The project does not claim live market risk analytics, dynamic hedging, predicti
 
 ## Project Status
 
-This project is in a disciplined M3 publication phase. The M1 pricing foundation is complete and certified, the M2 Greeks engine is complete and published, and the M3 implied-volatility engine is complete and certified. The project remains intentionally focused on the Black-Scholes-Merton research scope and does not implement M4.
+This project is in a disciplined milestone publication phase. The M1 pricing foundation is complete and certified, the M2 Greeks engine is complete and published, the M3 implied-volatility engine is complete and certified, and the M4 CRR binomial engine is complete and published. The project remains intentionally focused on the Black-Scholes-Merton research scope and does not implement M5.
