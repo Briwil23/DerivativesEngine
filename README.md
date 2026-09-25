@@ -10,7 +10,8 @@ The project is organized around a clear milestone structure:
 - M2: complete and published Greeks and sensitivity engine
 - M3: implemented implied-volatility solving, root finding, and validation workflows
 - M4: implemented CRR binomial pricing with European and American exercise logic
-- M5+: planned extensions such as more advanced derivatives tooling and further calibration research
+- M5: implemented Monte Carlo pricing for European vanilla options under risk-neutral GBM
+- M6+: planned extensions such as variance reduction and further calibration research
 
 This repository is not a live trading system, a market-data platform, or a production hedging engine.
 
@@ -297,9 +298,79 @@ The M4 implementation remains focused on discrete-time vanilla option pricing an
 - exotic option support
 - live market data or trading workflows
 
-## M5+ — PLANNED
+## M5 — COMPLETE
 
-Planned future work includes more advanced derivatives tooling and additional numerical research beyond the current CRR binomial engine.
+The M5 layer adds a vectorized Monte Carlo engine for European vanilla options under the same Black-Scholes-Merton assumptions used in M1. The implementation simulates the exact terminal GBM distribution under the risk-neutral measure and returns both a point estimate and statistical diagnostics.
+
+### M5 mathematical model
+
+Under risk-neutral GBM:
+
+$$
+dS_t = (r-q)S_t\,dt + \sigma S_t\,dW_t
+$$
+
+Terminal simulation uses:
+
+$$
+S_T = S_0\exp\left((r-q-0.5\sigma^2)T + \sigma\sqrt{T}Z\right),\quad Z\sim N(0,1)
+$$
+
+Discounted payoff samples are:
+
+$$
+X_i = e^{-rT}\,\text{payoff}(S_T^{(i)})
+$$
+
+The Monte Carlo estimator is:
+
+$$
+\hat V = \frac{1}{n}\sum_{i=1}^n X_i
+$$
+
+### M5 capabilities
+
+- vectorized NumPy simulation without Python loops over paths
+- local RNG via numpy.random.default_rng(seed) for reproducibility
+- deterministic seed policy: same inputs and seed reproduce the same estimate
+- Monte Carlo standard error estimation from sample dispersion
+- configurable normal-approximation confidence intervals
+- explicit deterministic boundary policies for T = 0 and sigma = 0
+- validation against analytical M1 Black-Scholes benchmarks
+- convergence diagnostics showing expected standard-error scaling behavior
+
+### M5 diagnostics
+
+M5 returns an immutable result object that includes:
+
+- estimated price
+- standard error
+- confidence interval
+- confidence level
+- path count
+- seed
+- option type and model label
+
+The confidence interval is explicitly interpreted as a sampling interval for the Monte Carlo estimator under the simulation model; it is not a confidence interval for true market value.
+
+### M5 limitations
+
+The M5 implementation intentionally remains constrained to:
+
+- European vanilla options only
+- Black-Scholes-Merton / GBM assumptions
+- constant continuously compounded r, q, and sigma
+- terminal-distribution simulation only (no full path matrix)
+- no early exercise modeling
+- no transaction costs or market frictions
+- no stochastic volatility, jumps, or local-volatility dynamics
+- no market calibration or live data pipelines
+- no variance reduction techniques in this milestone
+- Monte Carlo estimates that include sampling error
+
+## M6+ — PLANNED
+
+Planned future work includes variance reduction methods and additional numerical research beyond the current CRR and baseline Monte Carlo engines.
 
 ## Installation
 
@@ -347,7 +418,7 @@ The current M2 implementation remains within the following assumptions:
 - constant continuously compounded risk-free rate
 - continuous dividend yield
 
-The project does not claim live market risk analytics, dynamic hedging, predictive alpha, real-time calibration, implied-volatility tooling, American options, Monte Carlo simulation, or production trading readiness.
+The project does not claim live market risk analytics, dynamic hedging, predictive alpha, real-time calibration, production trading readiness, or execution-system functionality.
 
 ## Roadmap
 
@@ -377,7 +448,15 @@ The project does not claim live market risk analytics, dynamic hedging, predicti
 - discrete-time valuation and exercise diagnostics
 - M4 convergence and parity validation
 
-### M5+ — PLANNED
+### M5 — COMPLETE
+
+- risk-neutral GBM Monte Carlo pricing for European calls and puts
+- vectorized terminal-price simulation and discounted-payoff estimation
+- reproducible seeded simulation with local RNG policy
+- standard-error and confidence-interval diagnostics
+- deterministic T = 0 and sigma = 0 boundary handling
+
+### M6+ — PLANNED
 
 - more advanced numerical methods
 - model extensions and validation workflows
@@ -385,4 +464,4 @@ The project does not claim live market risk analytics, dynamic hedging, predicti
 
 ## Project Status
 
-This project is in a disciplined milestone publication phase. The M1 pricing foundation is complete and certified, the M2 Greeks engine is complete and published, the M3 implied-volatility engine is complete and certified, and the M4 CRR binomial engine is complete and published. The project remains intentionally focused on the Black-Scholes-Merton research scope and does not implement M5.
+This project is in a disciplined milestone certification phase. The M1 pricing foundation is complete and certified, the M2 Greeks engine is complete and published, the M3 implied-volatility engine is complete and certified, the M4 CRR binomial engine is complete and published, and the M5 Monte Carlo engine is complete and published. The project remains intentionally focused on the Black-Scholes-Merton research scope and does not yet implement M6.
