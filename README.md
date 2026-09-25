@@ -11,7 +11,7 @@ The project is organized around a clear milestone structure:
 - M3: implemented implied-volatility solving, root finding, and validation workflows
 - M4: implemented CRR binomial pricing with European and American exercise logic
 - M5: implemented Monte Carlo pricing for European vanilla options under risk-neutral GBM
-- M6+: planned extensions such as variance reduction and further calibration research
+- M6: complete variance-reduction layer with quantitative efficiency diagnostics
 
 This repository is not a live trading system, a market-data platform, or a production hedging engine.
 
@@ -368,9 +368,63 @@ The M5 implementation intentionally remains constrained to:
 - no variance reduction techniques in this milestone
 - Monte Carlo estimates that include sampling error
 
-## M6+ — PLANNED
+## M6 — COMPLETE
 
-Planned future work includes variance reduction methods and additional numerical research beyond the current CRR and baseline Monte Carlo engines.
+The M6 layer extends the certified M5 European Monte Carlo engine with variance-reduction techniques and quantitative efficiency analysis under the same risk-neutral GBM assumptions. The scope remains limited to European vanilla options and does not introduce M7 market-model or path-dependent features.
+
+### M6 mathematical model
+
+The M6 engine continues to use the M5 exact terminal GBM model:
+
+$$
+S_T = S_0 \exp\left((r-q-0.5\sigma^2)T + \sigma\sqrt{T}Z\right),\quad Z \sim N(0,1)
+$$
+
+The discounted payoff remains:
+
+$$
+X = e^{-rT}\,\mathrm{payoff}(S_T)
+$$
+
+The M6 methods estimate the same risk-neutral option value but reduce the sampling variance by exploiting structure in the terminal distribution.
+
+### M6 methods
+
+- plain Monte Carlo baseline using the certified M5 estimator
+- antithetic variates using paired draws $Z$ and $-Z$
+- control variates using the discounted terminal underlying $Y = e^{-rT}S_T$
+- combined antithetic + control estimator using paired averages and the known control expectation $E[Y] = S_0 e^{-qT}$
+
+### M6 diagnostics
+
+Each method reports:
+
+- estimated price
+- sample variance and standard error
+- confidence interval
+- elapsed runtime
+- variance-reduction ratio (VRR)
+- standard-error reduction ratio (SERR)
+- beta coefficient for the control-variate estimators
+- explicit path-count semantics under a fair terminal-payoff budget
+
+### M6 limitations
+
+The M6 implementation intentionally remains constrained to:
+
+- European vanilla options only
+- GBM / Black-Scholes-Merton assumptions
+- constant continuously compounded r, q, and sigma
+- no early exercise or American-style path dependence
+- no transaction costs or market frictions
+- no stochastic volatility, jumps, or local-volatility dynamics
+- no calibration, live market data, or execution workflows
+- no Sobol, Latin hypercube, importance-sampling, or stratified-sampling methods
+- no claim of universal superiority; effectiveness is payoff- and model-dependent
+
+## M7+ — PLANNED
+
+Planned follow-up work includes broader research beyond the certified European vanilla variance-reduction scope already implemented in M6.
 
 ## Installation
 
@@ -456,7 +510,16 @@ The project does not claim live market risk analytics, dynamic hedging, predicti
 - standard-error and confidence-interval diagnostics
 - deterministic T = 0 and sigma = 0 boundary handling
 
-### M6+ — PLANNED
+### M6 — COMPLETE
+
+- antithetic variate estimator using paired $Z$ and $-Z$
+- control-variate estimator using discounted terminal underlying
+- combined antithetic + control estimator
+- fair terminal-payoff budget comparisons and variance diagnostics
+- deterministic seeded multi-run research evidence
+- explicit M6 completion and published scope limits
+
+### M7+ — PLANNED
 
 - more advanced numerical methods
 - model extensions and validation workflows
@@ -464,4 +527,4 @@ The project does not claim live market risk analytics, dynamic hedging, predicti
 
 ## Project Status
 
-This project is in a disciplined milestone certification phase. The M1 pricing foundation is complete and certified, the M2 Greeks engine is complete and published, the M3 implied-volatility engine is complete and certified, the M4 CRR binomial engine is complete and published, and the M5 Monte Carlo engine is complete and published. The project remains intentionally focused on the Black-Scholes-Merton research scope and does not yet implement M6.
+This project is in a disciplined milestone certification phase. The M1 pricing foundation is complete and certified, the M2 Greeks engine is complete and published, the M3 implied-volatility engine is complete and certified, the M4 CRR binomial engine is complete and published, the M5 Monte Carlo engine is complete and published, and the M6 variance-reduction layer is complete and published. The project remains intentionally focused on the Black-Scholes-Merton research scope and does not yet implement M7.
