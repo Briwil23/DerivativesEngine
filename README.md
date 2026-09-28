@@ -605,11 +605,19 @@ The project does not claim live market risk analytics, dynamic hedging, predicti
 - reconstruction metrics, flat-surface validation, and deterministic output
 - no global arbitrage-free claim or live market-data integration
 
-### M9 — FUTURE / PLANNED
+### M9 — COMPLETE
 
-- advanced surface extensions and calibration workflows
-- broader model research and validation
-- additional market-facing analytics
+- model comparison and research synthesis layer built above the certified M1-M8 APIs
+- CRR-to-BSM European convergence validation
+- equal-payoff-budget Monte Carlo convergence and uncertainty calibration across plain, antithetic, control-variate, and antithetic-control estimators
+- variance-reduction efficiency diagnostics using fixed-seed empirical dispersion and reported SE
+- American early-exercise premium research study via the published CRR engine
+- supporting M7 validation for geometric Asian pricing against the exact discrete geometric oracle and barrier in/out parity under matching monitoring semantics
+- M8 surface validation for observed-node reconstruction and synthetic off-node interpolation
+- explicit semantic boundaries: arithmetic Asian and continuous-monitoring barrier formulas are not treated as interchangeable oracles
+- deterministic research outputs using immutable result objects and explicit seed budgets
+
+M9 is a research and validation layer. It does not establish universal model superiority, does not imply live market calibration, and does not claim production trading readiness. Monte Carlo confidence intervals describe estimator sampling uncertainty under the assumed model, not total market uncertainty.
 
 ### M10 — FUTURE / PLANNED
 
@@ -618,4 +626,4 @@ The project does not claim live market risk analytics, dynamic hedging, predicti
 
 ## Project Status
 
-This project is in a disciplined milestone certification phase. The M1 pricing foundation is complete and certified, the M2 Greeks engine is complete and published, the M3 implied-volatility engine is complete and certified, the M4 CRR binomial engine is complete and published, the M5 Monte Carlo engine is complete and published, the M6 variance-reduction layer is complete and published, the M7 path-dependent exotic pricing layer is complete and published, and the M8 volatility-surface modeling milestone is complete and published. Future work is planned for M9 and M10, but neither is included in this publication.
+This project is in a disciplined milestone certification phase. The M1 pricing foundation is complete and certified, the M2 Greeks engine is complete and published, the M3 implied-volatility engine is complete and certified, the M4 CRR binomial engine is complete and published, the M5 Monte Carlo engine is complete and published, the M6 variance-reduction layer is complete and published, the M7 path-dependent exotic pricing layer is complete and published, and the M8 volatility-surface modeling milestone is complete and published. The M9 model-comparison and research-synthesis layer is complete and published. M10 remains future work and is not included in this publication.
