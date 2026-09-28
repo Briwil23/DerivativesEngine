@@ -479,6 +479,22 @@ The current M7 status is therefore:
 
 M7 COMPLETE
 
+## M8 — COMPLETE
+
+The M8 layer implements a forward-relative, total-variance volatility surface using the certified M3 implied-volatility solver as the price-inversion dependency. The public implementation is intentionally constrained to a deterministic, no-extrapolation interpolation surface on a finite set of observed maturities and strikes and does not claim live calibration, market-data integration, or production trading use.
+
+### M8 scope
+
+- forward-relative log-moneyness coordinate $k = \log(K/F)$
+- total-variance interpolation $w = \sigma^2 T$ rather than raw IV interpolation
+- same-maturity smile interpolation with explicit exact-node behavior
+- cross-maturity interpolation on the total-variance basis
+- strict no-extrapolation enforcement outside the observed smile and maturity domains
+- deterministic reconstruction of observed prices from the interpolated surface
+- read-only diagnostics for parity and domain violations
+
+This implementation is the published M8 milestone for the current repository state. It is not a market-calibration system, a live option-chain ingestion engine, or a trading-ready volatility engine, and it does not claim a globally arbitrage-free surface.
+
 ## Installation
 
 ```bash
@@ -572,12 +588,34 @@ The project does not claim live market risk analytics, dynamic hedging, predicti
 - deterministic seeded multi-run research evidence
 - explicit M6 completion and published scope limits
 
-### M7+ — RESEARCH FOLLOW-ON
+### M7 — COMPLETE
 
-- more advanced numerical methods
-- model extensions and validation workflows
-- additional research-oriented analytics
+- discrete GBM monitoring paths
+- discrete Asian options under arithmetic and geometric averaging
+- discrete barriers with no continuous-monitoring claim
+- route-through to the same confidence-interval and standard-error diagnostics used in M5/M6
+- explicit publication scope limits and no market-calibration claim
+
+### M8 — COMPLETE
+
+- forward-relative log-moneyness volatility surface
+- total-variance interpolation within and across maturities
+- strict no-extrapolation and diagnostic enforcement
+- parity, monotonicity, convexity, and calendar-domain validation
+- reconstruction metrics, flat-surface validation, and deterministic output
+- no global arbitrage-free claim or live market-data integration
+
+### M9 — FUTURE / PLANNED
+
+- advanced surface extensions and calibration workflows
+- broader model research and validation
+- additional market-facing analytics
+
+### M10 — FUTURE / PLANNED
+
+- terminal, dashboard, and broader research-application workflows
+- platform-level delivery features beyond the core numerical library
 
 ## Project Status
 
-This project is in a disciplined milestone certification phase. The M1 pricing foundation is complete and certified, the M2 Greeks engine is complete and published, the M3 implied-volatility engine is complete and certified, the M4 CRR binomial engine is complete and published, the M5 Monte Carlo engine is complete and published, the M6 variance-reduction layer is complete and published, and the M7 path-dependent exotic pricing layer is complete and published.
+This project is in a disciplined milestone certification phase. The M1 pricing foundation is complete and certified, the M2 Greeks engine is complete and published, the M3 implied-volatility engine is complete and certified, the M4 CRR binomial engine is complete and published, the M5 Monte Carlo engine is complete and published, the M6 variance-reduction layer is complete and published, the M7 path-dependent exotic pricing layer is complete and published, and the M8 volatility-surface modeling milestone is complete and published. Future work is planned for M9 and M10, but neither is included in this publication.
